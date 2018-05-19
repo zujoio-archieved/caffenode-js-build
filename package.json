@@ -1,0 +1,33 @@
+{
+  "name": "opencv-build",
+  "version": "0.0.13",
+  "description": "A simple script to auto build recent OpenCV + contrib version via npm",
+  "main": "index.js",
+  "scripts": {
+    "install": "node ./install.js",
+    "test": "mocha --recursive ./test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ordinary-man/caffenode-js-build.git"
+  },
+  "keywords": [
+    "caffe",
+    "opencv",
+    "dnn",
+    "deep learning"
+  ],
+  "author": "ordinary-man",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ordinary-man/caffenode-js-build/issues"
+  },
+  "homepage": "https://github.com/ordinary-man/caffenode-js-build#readme",
+  "dependencies": {
+    "npmlog": "^4.1.2"
+  },
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "mocha": "^5.1.1"
+  }
+}
