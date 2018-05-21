@@ -1,102 +1,46 @@
-const { exec, execFile, spawn } = require('child_process');
-const { opencvBuild, opencvContribModules, opencvSrc } = require('config');
+const {
+    opencvBuild,
+    opencvContribModules,
+    opencvSrc,
+
+    cudaInclude,
+    cuDnnInclude,
+
+    caffeDependeciesLinux,
+    caffeDependeciesDarvin,
+
+    ncclSrc,
+    ncclBuild
+
+} = require('./config');
 const log = require('npmlog');
-
-/**
- * execute native exec
- * @param {string} cmd 
- * @param {Object} opts 
- */
-const exec_ = async (cmd, opts) => {
-    log.silly("install", "executing", cmd);
-    return new Promise((resolve, reject) => {
-        exec(cmd, opts, (err, stdout, stderr) => {
-            const err_ = err || stderr;
-            if (err_) return reject(err_);
-            return resolve(stdout);
-        })
-    })
-}
-
-/**
- * execute native execFile
- * @param {string} cmd 
- * @param {Array} args 
- * @param {Object} opts 
- */
-const execFile_ = async (cmd, args, opts) => {
-    log.silly("install", "executing", cmd, args);
-    return new Promise((resolve, reject) => {
-        const child_ = execFile(cmd, args, opts, (err, stdout, stderr) => {
-            const err_ = err || stderr;
-            if (err_) return reject(err_);
-            return resolve(stdout);
-        })
-        child_.stdin.end()
-    })
-}
-
-/**
- * executes native span command
- * @param {string} cmd 
- * @param {Array} args 
- * @param {object} opts 
- */
-const spawn_ = async (cmd, args, opts) => {
-    log.silly("install", "executing", cmd, args);
-    return new Promise((resolve, reject) => {
-        try {
-            const stdioInherit = Object.assign({}, { stdio: 'inherit' }, opts);
-            const child_ = spawn(cmd, args, stdioInherit);
-
-            child_.on('exit', (code) => {
-                const message = `child process exited with code: ${code.toString()}`;
-                if (code !== 0) {
-                    return reject(message);
-                }
-                return resolve(message);
-            })
-        } catch (err) {
-            return reject(err);
-        }
-    });
-}
-
-/**
- * FIND PLATEFORM
- */
-const isWindows_ = async () => {
-    return process.platform == 'win32';
-}
-const isOSX_ = async () => {
-    return process.platform == 'darwin';
-}
-const isUnix_ = async () => {
-    return !(await isWindows_()) && !(await isOSX_());
-}
-
+const {
+    exec,
+    spawn,
+} = require('./native');
+const {
+    isOSX,
+    installPackage
+} = require('./plateform');
 /**
  * VALIDATE MAKE AND GIT
  */
 /**
  * check git installed
  */
-const requireGit_ = () => {
-    const stdout = await exec_('git --version');
+const requireGit_ = async () => {
+    const stdout = await exec('git --version');
     log.silly('install', stdout);
     return stdout;
 }
-
 /**
  * check make installed
  */
-const requireCmake_ = () => {
-    const stdout = await exec_('cmake --version');
+const requireCmake_ = async () => {
+    const stdout = await exec('cmake --version');
     log.silly('install', stdout);
     return stdout;
 }
-
-
 /**
  * get command for making directory
  * @param {string} dirName 
@@ -104,7 +48,6 @@ const requireCmake_ = () => {
 const getMakeDirCommand_ = (dirName) => {
     return `mkdir -p ${dirName}`;
 }
-
 /**
  * get command for remove directory
  * @param {string} dirName 
@@ -112,7 +55,6 @@ const getMakeDirCommand_ = (dirName) => {
 const getRmDirCommand_ = (dirName) => {
     return `rm -rf ${dirName}`;
 }
-
 /**
  * getting shared flags for opencv
  */
@@ -160,7 +102,6 @@ const getCvSharedCmakeFlags_ = () => {
         '-DWITH_VTK=OFF'
     ]
 }
-
 /**
  * getting arg of cmake
  * @param {string} cMakeFlags 
@@ -168,25 +109,71 @@ const getCvSharedCmakeFlags_ = () => {
 const getCvCmakeArgs_ = (cMakeFlags) => {
     return [opencvSrc].concat(cMakeFlags);
 }
-
-
+/**
+ * check whether system have GPU installed
+ */
+const hasGPU = async () => {
+    const stdout = await exec('which nvidia-smi');
+    log.silly('install', stdout);
+    return (stdout != undefined ? false : true);
+}
+/**
+ * check whether user have defined to build on basis of GPU
+ */
+const isCPU_ = () => {
+    return process.env.CPU_ONLY;
+}
+/**
+ * check whether cuda installd in system
+ */
+const isCudaInstalled_ = async () => {
+    const stdout = await exec(`cat ${cudaInclude}/version.txt`);
+    log.silly('install', stdout);
+    return (stdout == undefined ? false : true);
+}
+/**
+ * check whether cuDnn installed in system
+ */
+const isCuDnnInstallted_ = async () => {
+    const stdout = await exec(`cat ${cuDnnInclude}/cudnn.h | grep CUDNN_MAJOR -A 2`);
+    log.silly('install', stdout);
+    return (stdout == undefined ? false : true);
+}
+/**
+ * install caffe and cv dependencies
+ */
+const installCaffeDependencies_ = async () => {
+    const dependencies = isOSX() ? caffeDependeciesDarvin : caffeDependeciesLinux;
+    dependencies.forEach(async dependency => {
+        await installPackage(dependency);
+    })
+    return;
+}
+/**
+ * getting arg of cmake for NCCL
+ * @param {string} cMakeFlags 
+ */
+const getNcclCmakeArgs_ = (cMakeFlags) => {
+    return [
+        `PREFIX=${ncclBuild}`
+    ];
+}
 
 module.exports = {
-    exec: exec_,
-    execFile: execFile_,
-    spawn: spawn_,
-
-    isWindows: isWindows_,
-    isOSX: isOSX_,
-    isUnix: isUnix_,
-
     requireGit: requireGit_,
     requireCmake: requireCmake_,
 
-    getIfDirExistsCommand: getIfDirExistsCommand_,
     getMakeDirCommand: getMakeDirCommand_,
     getRmDirCommand: getRmDirCommand_,
 
     getCvSharedCmakeFlags: getCvSharedCmakeFlags_,
-    getCvCmakeArgs: getCvCmakeArgs_
+    getCvCmakeArgs: getCvCmakeArgs_,
+
+    isCPU: isCPU_,
+
+    isCudaInstalled: isCudaInstalled_,
+    isCuDnnInstallted: isCuDnnInstallted_,
+    installCaffeDependencies: installCaffeDependencies_,
+
+    getNcclCmakeArgs: getNcclCmakeArgs_
 }

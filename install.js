@@ -2,33 +2,36 @@ const path = require('path')
 const fs = require('fs')
 const log = require('npmlog')
 
-if (process.env.npm_config_loglevel === 'silly') {
-    log.level = 'silly'
-}
+//if (process.env.npm_config_loglevel === 'silly') {
+log.level = 'silly'
+//}
 
 const {
     opencvModules
-} = require('lib/config');
+} = require('./config');
 const {
     isWindows,
     isOSX,
+} = require('./plateform');
+const {
     requireGit,
     requireCmake,
     opencvLibDir
-} = require('lib/util');
+} = require('./util');
 const {
     build
-} = require('lib/build');
+} = require('./build');
 
-const install_ = () => {
+const install_ = async () => {
     log.silly('install', 'install');
+    console.log("install")
 
     if (fs.existsSync(opencvLibDir)) {
         return;
     }
 
     try {
-        log.silly('install', 'installing opencv');
+
         await requireGit();
         await requireCmake();
         await build();
@@ -38,4 +41,4 @@ const install_ = () => {
         process.exit(1);
     }
 }
-install_();e
+install_();
