@@ -64,3 +64,4 @@ typings/
 nccl
 opencv
 protobuf
+caffe

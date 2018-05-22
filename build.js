@@ -21,7 +21,8 @@ const {
     isCuDnnInstallted,
     installCaffeDependencies,
 
-    getNcclCmakeArgs
+    getNcclCmakeArgs,
+    getProtobufCmakeArgs
 } = require('./util');
 const {
     rootDir,
@@ -47,11 +48,22 @@ const {
     protobufTarPath,
     protobufTarName,
 
+    caffeRoot,
+    caffeSrc,
+    caffeBuild,
+    caffeInclude,
+    caffeLibDir,
+    caffeRepo,
+    caffeMakeFileReplacements,
+    caffeProtoDir,
+
     numberOfCores
 } = require('./config');
 const {
     checkCvAlreadyCompiled,
-    checkNcclAlreadyCompiled
+    checkNcclAlreadyCompiled,
+    checkProtobufAlreadyCompiled,
+    checkCaffeAlreadyCompiled
 } = require('./libs');
 
 
@@ -145,6 +157,12 @@ const buildNccl = async () => {
  */
 const buildProtobuf = async () => {
     log.silly('install', 'installing protobuf');
+
+    if (checkProtobufAlreadyCompiled()) {
+        log.silly('install', 'protobuf already installed.');
+        return;
+    }
+
     /**
      * create dir protobuf
      */
@@ -174,8 +192,70 @@ const buildProtobuf = async () => {
     await spawn('sh', ['configure', '--prefix=/usr'], { cwd: protobufSrc });
     await spawn('make', ['clean'], { cwd: protobufSrc });
     await spawn('make', ['all', `-j${numberOfCores}`], { cwd: protobufSrc });
-    await spawn('make', ['install', `-j${numberOfCores}`], { cwd: protobufSrc });
+    await spawn('sudo', ['make', getProtobufCmakeArgs(), 'install', `-j${numberOfCores}`], { cwd: protobufSrc });
+    await spawn('sudo', ['ldconfig'], { cwd: protobufSrc });
     return;
+}
+
+
+/**
+ * edit makefile anfd change it's content
+ */
+const modifyCaffeMakeFile = async () => {
+    const makeFileConfigPath = `${caffeSrc}/Makefile.config`;
+
+    try {
+        let makeFile = fs.readFileSync(makeFileConfigPath, 'utf8');
+        caffeMakeFileReplacements.forEach(caffeMakeFileReplacement => {
+            makeFile = makeFile.replace(`${caffeMakeFileReplacement.original}`, `${caffeMakeFileReplacement.replace}`);
+        })
+        fs.writeFileSync(makeFileConfigPath, makeFile, 'utf8');
+        return;
+    }
+    catch (err) {
+        throw err;
+    }
+
+}
+
+/**
+ * build cafee based on GPU mode
+ * @param {boolean} isCpuEnable 
+ */
+const buildCaffe = async (isCpuEnable = true) => {
+    log.silly('install', 'installing caffe');
+    if (checkCaffeAlreadyCompiled) {
+        log.silly('install', 'caffe already installed');
+        return;
+    }
+
+    /**
+     * create dir caffe
+     */
+    if (!fs.existsSync(caffeRoot)) {
+        await exec(getMakeDirCommand('caffe'), { cwd: rootDir });
+    }
+
+    /**
+     * clone caffe 
+     */
+    if (!fs.existsSync(caffeSrc)) {
+        await exec(getRmDirCommand('caffe'), { cwd: caffeRoot });
+        await spawn('git', ['clone', '--progress', caffeRepo], { cwd: caffeRoot });
+    }
+
+    // copy config makefile
+    await spawn('cp', ['Makefile.config.example', 'Makefile.config'], { cwd: caffeSrc });
+
+    // set necessary flags
+    await modifyCaffeMakeFile();
+
+    // compile caffe
+    await spawn('make', ['clean'], { cwd: caffeSrc });
+    await spawn('make', ['all', `-j${numberOfCores}`], { cwd: caffeSrc });
+
+    // compile proto header
+    await spawn('protoc', ['caffe.proto', '--cpp_out=.'], { cwd: caffeProtoDir });
 }
 
 /**
@@ -211,6 +291,7 @@ const build_ = async () => {
     // build opencv todo: compile cuda libs in GPU mode
     await buildCv();
 
+
     if (!isCpuEnable) {
         // build NCCL
         await buildNccl();
@@ -218,6 +299,9 @@ const build_ = async () => {
 
     // build protobuf
     await buildProtobuf();
+
+    // build caffe
+    await buildCaffe();
 
     return;
 }

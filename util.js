@@ -6,8 +6,12 @@ const {
     cudaInclude,
     cuDnnInclude,
 
+    protobufBuild,
+
     caffeDependeciesLinux,
     caffeDependeciesDarvin,
+
+    caffeBuild,
 
     ncclSrc,
     ncclBuild
@@ -159,6 +163,15 @@ const getNcclCmakeArgs_ = (cMakeFlags) => {
     ];
 }
 
+/**
+ * getting flags for 
+ */
+const getProtobufCmakeArgs_ = () => {
+    return [
+        `PREFIX=${protobufBuild}`
+    ];
+}
+
 module.exports = {
     requireGit: requireGit_,
     requireCmake: requireCmake_,
@@ -175,5 +188,7 @@ module.exports = {
     isCuDnnInstallted: isCuDnnInstallted_,
     installCaffeDependencies: installCaffeDependencies_,
 
-    getNcclCmakeArgs: getNcclCmakeArgs_
+    getNcclCmakeArgs: getNcclCmakeArgs_,
+    getProtobufCmakeArgs: getProtobufCmakeArgs_
+
 }

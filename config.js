@@ -41,10 +41,12 @@ const opencvContribRepo = 'https://github.com/opencv/opencv_contrib.git';
 
 //////////////////// CAFFE ///////////////////////
 const caffeRoot = path.join(rootDir, 'caffe');
-const caffeSrc = path.join(caffeRoot, 'src/caffe');
-const caffeBuild = path.join(caffeRoot, 'build');
-const caffeInclude = path.join(caffeRoot, 'include/caffe');
+const caffeSrc = path.join(caffeRoot, 'caffe');
+const caffeBuild = path.join(caffeSrc, 'build');
+const caffeInclude = path.join(caffeSrc, 'include');
 const caffeLibDir = path.join(caffeBuild, 'lib');
+const caffeProtoDir = path.join(caffeSrc, '/src/caffe/proto/')
+const caffeRepo = 'https://github.com/BVLC/caffe.git';
 const caffeDependeciesLinux = [
     'libsnappy-dev',
     'libatlas-base-dev',
@@ -74,6 +76,57 @@ const caffeDependeciesDarvin = [
     'boost',
     'webp' // opencv 3 dependecy
 ];
+const caffeMakeFileReplacements = [
+    // CUSTOM_CXX
+    {
+        original: '# CUSTOM_CXX := g++',
+        replace: 'CUSTOM_CXX := /usr/bin/g++'
+    },
+    // USE_OPENCV
+    {
+        original: '# USE_OPENCV := 0',
+        replace: ' USE_OPENCV := 0'
+    },
+    // USE_CUDNN
+    {
+        original: '# USE_CUDNN := 1',
+        replace: ' USE_CUDNN := 1'
+    },
+    // todo-check version of cuda before replacement
+    // -gencode arch=compute_20,code=sm_20 \
+    {
+        original: '-gencode arch=compute_20,code=sm_20 \\',
+        replace: '\\'
+    },
+    // -gencode arch=compute_20,code=sm_21 \
+    {
+        original: '-gencode arch=compute_20,code=sm_21 \\',
+        replace: '\\'
+    },
+    // INCLUDE_DIRS := $(PYTHON_INCLUDE) /usr/local/include
+    {
+        original: 'INCLUDE_DIRS := $(PYTHON_INCLUDE) /usr/local/include',
+        replace: 'INCLUDE_DIRS := $(PYTHON_INCLUDE) /usr/local/include /usr/include/hdf5/serial/'
+    },
+    // LIBRARY_DIRS := $(PYTHON_LIB) /usr/local/lib /usr/lib
+    {
+        original: 'LIBRARY_DIRS := $(PYTHON_LIB) /usr/local/lib /usr/lib',
+        replace: 'LIBRARY_DIRS := $(PYTHON_LIB) /usr/local/lib /usr/lib /usr/lib/x86_64-linux-gnu/hdf5/serial/'
+    },
+    // BUILD_DIR := build
+    /* {
+         original: 'BUILD_DIR := build',
+         replace: `BUILD_DIR := ${caffeBuild}`
+     },*/
+    // # OPENCV_VERSION := 3
+    {
+        original: '# OPENCV_VERSION := 3',
+        replace: ' OPENCV_VERSION := 3'
+    }
+]
+const caffeModules = [
+    'caffe'
+]
 
 //////////////////// CUDA ///////////////////////
 const cudaInclude = isOSX() ? '/Library/Frameworks/CUDA' : '/usr/local/cuda';
@@ -87,16 +140,19 @@ const ncclInclude = path.join(ncclBuild, 'include');
 const ncclLibDir = path.join(ncclBuild, 'lib');
 const ncclBinDir = path.join(ncclBuild, 'bin');
 const ncclRepo = 'https://github.com/NVIDIA/nccl.git';
+const ncclModules = ['nccl'];
 
 //////////////////// PROTOBUF ///////////////////////
 const protobufRoot = path.join(rootDir, 'protobuf');
 const protobufSrc = path.join(protobufRoot, 'protobuf');
-const protobufBuild = path.join(protobufRoot, 'build');
-const protobufInclude = path.join(protobufBuild, 'include');
-const protobufLibDir = path.join(protobufBuild, 'lib');
-const protobufBinDir = path.join(protobufBuild, 'bin');
+const protobufBuild = path.join(protobufSrc, 'src/');
+const protobufInclude = path.join(protobufBuild, 'google/protobuf/');
+const protobufLibDir = path.join(protobufBuild, '.lib');
+const protobufBinDir = path.join(protobufBuild, '.deps');
 const protobufTarPath = 'https://github.com/google/protobuf/releases/download/v2.5.0/protobuf-2.5.0.tar.gz';
-const protobufTarName =  protobufTarPath.split('/').pop();
+const protobufTarName = protobufTarPath.split('/').pop();
+const protobufModules = ['protobuf', 'protobuf-lite'];
+
 module.exports = {
     rootDir,
     /**
@@ -138,6 +194,7 @@ module.exports = {
     ncclLibDir,
     ncclBinDir,
     ncclRepo,
+    ncclModules,
     /**
      * PROTOBUF CONFIG
      */
@@ -149,6 +206,8 @@ module.exports = {
     protobufBinDir,
     protobufTarPath,
     protobufTarName,
+    protobufModules,
+    caffeProtoDir,
     /**
      * CAFFE CONFIG
      */
@@ -163,8 +222,10 @@ module.exports = {
     /**
      * CAFFE DEPENDENCIES
      */
+    caffeRepo,
     caffeDependeciesLinux,
     caffeDependeciesDarvin,
+    caffeMakeFileReplacements,
     /**
      * OTHERS
      */
