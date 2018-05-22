@@ -191,7 +191,7 @@ const checkCaffeAlreadyCompiled = async () => {
         const libFiles = fs.readdirSync(caffeLibDir);
         const prefix = getCaffeLibPrefix();
         const suffix = getCaffeLibSuffix();
-        return caffeModules.every(module => undefined != resolveLibPath(protobufLibDir, libFiles, module, prefix, suffix));
+        return caffeModules.every(module => undefined != resolveLibPath(caffeLibDir, libFiles, module, prefix, suffix));
     }
     catch (err) {
         throw err;

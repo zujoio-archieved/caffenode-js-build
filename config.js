@@ -145,9 +145,9 @@ const ncclModules = ['nccl'];
 //////////////////// PROTOBUF ///////////////////////
 const protobufRoot = path.join(rootDir, 'protobuf');
 const protobufSrc = path.join(protobufRoot, 'protobuf');
-const protobufBuild = path.join(protobufSrc, 'src/');
+const protobufBuild = path.join(protobufSrc, 'src');
 const protobufInclude = path.join(protobufBuild, 'google/protobuf/');
-const protobufLibDir = path.join(protobufBuild, '.lib');
+const protobufLibDir = path.join(protobufBuild, '.libs');
 const protobufBinDir = path.join(protobufBuild, '.deps');
 const protobufTarPath = 'https://github.com/google/protobuf/releases/download/v2.5.0/protobuf-2.5.0.tar.gz';
 const protobufTarName = protobufTarPath.split('/').pop();
@@ -226,6 +226,7 @@ module.exports = {
     caffeDependeciesLinux,
     caffeDependeciesDarvin,
     caffeMakeFileReplacements,
+    caffeModules,
     /**
      * OTHERS
      */
