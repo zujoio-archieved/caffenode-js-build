@@ -1,6 +1,6 @@
 {
-  "name": "opencv-build",
-  "version": "0.0.13",
+  "name": "caffenode-js-build",
+  "version": "0.0.0",
   "description": "build caffe with GPU/CPU",
   "main": "index.js",
   "scripts": {
