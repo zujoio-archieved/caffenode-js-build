@@ -80,7 +80,7 @@ const buildCv = async () => {
     /**
     * create dir opencv
     */
-    if (!fs.existsSync(rootDir)) {
+    if (!fs.existsSync(opencvRoot)) {
         await exec(getMakeDirCommand('opencv'), { cwd: rootDir });
     }
     /**
@@ -148,7 +148,7 @@ const buildNccl = async () => {
     /**
      * compile
      */
-    await spawn('make', ['test', `-j${numberOfCores}`], { cwd: ncclSrc });
+    //await spawn('make', ['test', `-j${numberOfCores}`], { cwd: ncclSrc });
     await spawn('make', [getNcclCmakeArgs(), 'install', `-j${numberOfCores}`], { cwd: ncclSrc });
 }
 
@@ -158,7 +158,7 @@ const buildNccl = async () => {
 const buildProtobuf = async () => {
     log.silly('install', 'installing protobuf');
 
-    if (checkProtobufAlreadyCompiled()) {
+    if (await checkProtobufAlreadyCompiled()) {
         log.silly('install', 'protobuf already installed.');
         return;
     }
@@ -224,7 +224,7 @@ const modifyCaffeMakeFile = async () => {
  */
 const buildCaffe = async (isCpuEnable = true) => {
     log.silly('install', 'installing caffe');
-    if (checkCaffeAlreadyCompiled) {
+    if (await checkCaffeAlreadyCompiled()) {
         log.silly('install', 'caffe already installed');
         return;
     }
