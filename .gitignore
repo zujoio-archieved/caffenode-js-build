@@ -62,6 +62,10 @@ typings/
 
 #compiled libs
 nccl
+nccl-backup
 opencv
+opencv-backup
 protobuf
+protobuf-backup
 caffe
+caffe-backup
