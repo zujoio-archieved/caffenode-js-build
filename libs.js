@@ -143,6 +143,7 @@ const checkCvAlreadyCompiled = async () => {
     }
 }
 
+
 /**
  * check whether NCCL installed successfully
  */
@@ -196,6 +197,47 @@ const checkCaffeAlreadyCompiled = async () => {
     catch (err) {
         throw err;
     }
+}
+
+/**
+ * fetching all dependent libraries
+ */
+const getLibs = async () => {
+    let libraries = [];
+
+    // fetching cv dependencies
+    let libFiles = fs.readdirSync(opencvLibDir);
+    let prefix = getCvLibPrefix();
+    let suffix = getCvLibSuffix();
+    opencvModules.every(module => {
+        libraries.push(resolveLibPath(opencvLibDir, libFiles, module, prefix, suffix));
+    });
+
+    // fetching nccl dependecies
+    libFiles = fs.readdirSync(ncclLibDir);
+    prefix = getNcclLibPrefix();
+    suffix = getNcclLibSuffix();
+    return ncclModules.every(module => {
+        libraries.push(resolveLibPath(ncclLibDir, libFiles, module, prefix, suffix));
+    });
+
+    // fetching protobuf dependencies
+    libFiles = fs.readdirSync(protobufLibDir);
+    prefix = getProtobufLibPrefix();
+    suffix = getProtobufLibSuffix();
+    return protobufModules.every(module => {
+        libraries.push(resolveLibPath(protobufLibDir, libFiles, module, prefix, suffix));
+    });
+
+    // featching caffe dependencies
+    libFiles = fs.readdirSync(caffeLibDir);
+    prefix = getCaffeLibPrefix();
+    suffix = getCaffeLibSuffix();
+    caffeModules.every(module => {
+        libraries.push(resolveLibPath(caffeLibDir, libFiles, module, prefix, suffix));
+    });
+
+    return libraries;
 }
 
 module.exports = {
