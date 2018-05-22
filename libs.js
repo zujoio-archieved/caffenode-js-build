@@ -244,5 +244,6 @@ module.exports = {
     checkCvAlreadyCompiled,
     checkNcclAlreadyCompiled,
     checkProtobufAlreadyCompiled,
-    checkCaffeAlreadyCompiled
+    checkCaffeAlreadyCompiled,
+    getLibs
 }

@@ -34,12 +34,12 @@ const {
     caffeMakeFileReplacements,
     caffeModules
 } = require('./config');
-
 const {
-    getLibs,
     isCPU
 } = require('./util');
-
+const {
+    getLibs
+} = require('./libs');
 module.exports = {
     opencvSrc,
     opencvModules,
