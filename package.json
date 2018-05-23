@@ -15,7 +15,9 @@
     "caffe",
     "opencv",
     "dnn",
-    "deep learning"
+    "deep learning",
+    "node js",
+    "javascript"
   ],
   "author": "arjun-kava",
   "license": "MIT",

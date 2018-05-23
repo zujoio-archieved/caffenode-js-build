@@ -125,7 +125,7 @@ const hasGPU = async () => {
  * check whether user have defined to build on basis of GPU
  */
 const isCPU_ = () => {
-    return process.env.CPU_ONLY;
+    return process.env.CPU_ONLY ? process.env.CPU_ONLY : 0;
 }
 /**
  * check whether cuda installd in system
