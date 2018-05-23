@@ -129,3 +129,14 @@ describe('caffe import libs and deps', () => {
         checkArrayHaveEle(nodeCaffeBuild.caffeModules);
     });
 });
+
+describe('fetch all libs and validate paths', () => {
+    it('should check get libs available', () => {
+        checkArrayHaveEle(nodeCaffeBuild.getLibs);
+        nodeCaffeBuild.getLibs.forEach(lib => {
+            expect(lib).to.have.property('module');
+            expect(lib).to.have.property('path');
+            resolvePath(lib.path);
+        });
+    })
+})
