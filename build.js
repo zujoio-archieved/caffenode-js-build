@@ -114,6 +114,7 @@ const buildCv = async () => {
      */
     await spawn('cmake', getCvCmakeArgs(getCvSharedCmakeFlags()), { cwd: opencvBuild });
     await spawn('make', ['install', `-j${numberOfCores}`], { cwd: opencvBuild });
+
     await spawn('make', ['all', `-j${numberOfCores}`], { cwd: opencvBuild });
 }
 
@@ -188,7 +189,8 @@ const buildProtobuf = async () => {
     /**
      * compile
      */
-    await spawn('sh', ['autogen.sh'], { cwd: protobufSrc });
+    log.silly("install", protobufSrc)
+    // await spawn('sh', ['autogen.sh'], { cwd: protobufSrc });
     await spawn('sh', ['configure', '--prefix=/usr'], { cwd: protobufSrc });
     await spawn('make', ['clean'], { cwd: protobufSrc });
     await spawn('make', ['all', `-j${numberOfCores}`], { cwd: protobufSrc });
@@ -202,12 +204,19 @@ const buildProtobuf = async () => {
  * edit makefile anfd change it's content
  */
 const modifyCaffeMakeFile = async () => {
+    const isCpuEnable = isCPU();
     const makeFileConfigPath = `${caffeSrc}/Makefile.config`;
 
     try {
         let makeFile = fs.readFileSync(makeFileConfigPath, 'utf8');
         caffeMakeFileReplacements.forEach(caffeMakeFileReplacement => {
-            makeFile = makeFile.replace(`${caffeMakeFileReplacement.original}`, `${caffeMakeFileReplacement.replace}`);
+            const forCpuOnly = isCpuEnable && caffeMakeFileReplacement.isCpu;
+            if (forCpuOnly) {
+                makeFile = makeFile.replace(`${caffeMakeFileReplacement.original}`, `${caffeMakeFileReplacement.replace}`);
+            }
+            else if (!isCpuEnable) {
+                makeFile = makeFile.replace(`${caffeMakeFileReplacement.original}`, `${caffeMakeFileReplacement.replace}`);
+            }
         })
         fs.writeFileSync(makeFileConfigPath, makeFile, 'utf8');
         return;
@@ -222,12 +231,14 @@ const modifyCaffeMakeFile = async () => {
  * build cafee based on GPU mode
  * @param {boolean} isCpuEnable 
  */
-const buildCaffe = async (isCpuEnable = true) => {
+const buildCaffe = async () => {
+    const isCpuEnable = isCPU();
     log.silly('install', 'installing caffe');
     if (await checkCaffeAlreadyCompiled()) {
         log.silly('install', 'caffe already installed');
         return;
     }
+    console.log("1")
 
     /**
      * create dir caffe
@@ -235,6 +246,8 @@ const buildCaffe = async (isCpuEnable = true) => {
     if (!fs.existsSync(caffeRoot)) {
         await exec(getMakeDirCommand('caffe'), { cwd: rootDir });
     }
+
+    console.log("2")
 
     /**
      * clone caffe 
@@ -244,7 +257,10 @@ const buildCaffe = async (isCpuEnable = true) => {
         await spawn('git', ['clone', '--progress', caffeRepo], { cwd: caffeRoot });
     }
 
+    console.log("3")
+
     // copy config makefile
+    await exec(getRmDirCommand('Makefile.config'), { cwd: caffeSrc });
     await spawn('cp', ['Makefile.config.example', 'Makefile.config'], { cwd: caffeSrc });
 
     // set necessary flags
@@ -286,7 +302,7 @@ const build_ = async () => {
     }
 
     // install dependent libraries for 
-    await installCaffeDependencies();
+    // await installCaffeDependencies();
 
     // build opencv todo: compile cuda libs in GPU mode
     await buildCv();
@@ -298,7 +314,7 @@ const build_ = async () => {
     }
 
     // build protobuf
-    await buildProtobuf();
+    //await buildProtobuf();
 
     // build caffe
     await buildCaffe();

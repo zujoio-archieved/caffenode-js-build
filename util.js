@@ -4,7 +4,6 @@ const {
     opencvSrc,
 
     cudaInclude,
-    cuDnnInclude,
 
     protobufBuild,
 
@@ -67,6 +66,11 @@ const getCvSharedCmakeFlags_ = () => {
         `-DCMAKE_INSTALL_PREFIX=${opencvBuild}`,
         '-DCMAKE_BUILD_TYPE=Release',
         `-DOPENCV_EXTRA_MODULES_PATH=${opencvContribModules}`,
+
+        // GPU / CPU
+        `-DBUILD_opencv_gpu=${!isCPU_() ? 'ON' : 'OFF'}`,
+        `-DWITH_CUDA=${!isCPU_() ? 'ON' : 'OFF'}`,
+
         '-DBUILD_EXAMPLES=OFF',
         '-DBUILD_DOCS=OFF',
         '-DBUILD_TESTS=OFF',
@@ -123,9 +127,10 @@ const hasGPU = async () => {
 }
 /**
  * check whether user have defined to build on basis of GPU
+ * default: CPU MODE
  */
 const isCPU_ = () => {
-    return process.env.CPU_ONLY ? process.env.CPU_ONLY : 0;
+    return process.env.CPU_ONLY != undefined ? process.env.CPU_ONLY : 1;
 }
 /**
  * check whether cuda installd in system
@@ -139,7 +144,7 @@ const isCudaInstalled_ = async () => {
  * check whether cuDnn installed in system
  */
 const isCuDnnInstallted_ = async () => {
-    const stdout = await exec(`cat ${cuDnnInclude}/cudnn.h | grep CUDNN_MAJOR -A 2`);
+    const stdout = await exec(`cat ${cudaInclude}/cudnn.h | grep CUDNN_MAJOR -A 2`);
     log.silly('install', stdout);
     return (stdout == undefined ? false : true);
 }
