@@ -9,7 +9,8 @@ const {
     opencvBinDir,
 
     cudaInclude,
-    cuDnnInclude,
+    cudaLib,
+    cudaLib64,
 
     ncclSrc,
     ncclBuild,
@@ -51,7 +52,8 @@ module.exports = {
     opencvBinDir,
 
     cudaInclude,
-    cuDnnInclude,
+    cudaLib,
+    cudaLib64,
 
     ncclSrc,
     ncclBuild,

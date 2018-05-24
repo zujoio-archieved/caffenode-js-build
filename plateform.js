@@ -71,7 +71,12 @@ const installPackageLinux_ = async (name, link = undefined) => {
  * @param {string} link : link installed package
  */
 const installPackage_ = async (name, link = undefined) => {
-    return isOSX_() ? installPackageOSX_(name, link) : installPackageLinux_(name, link);
+    try {
+        return isOSX_() ? await installPackageOSX_(name, link) : await installPackageLinux_(name, link);
+    }
+    catch (err) {
+        throw err;
+    }
 }
 
 module.exports = {

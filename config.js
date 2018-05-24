@@ -2,8 +2,17 @@ const path = require('path');
 const os = require('os');
 
 const {
-    isOSX
+    isOSX,
 } = require('./plateform');
+const {
+    isCPU,
+} = require('./util');
+
+//////////////////// CUDA ///////////////////////
+const cudaPath = '/usr/local/cuda';
+const cudaInclude = `${cudaPath}/include`;
+const cudaLib = `${cudaPath}/lib`;
+const cudaLib64 = `${cudaPath}/lib64`;
 
 //////////////////// CV ///////////////////////
 const rootDir = __dirname;
@@ -59,7 +68,6 @@ const caffeDependeciesLinux = [
     'libleveldb-dev',
     'liblmdb-dev',
     'libatlas-base-dev',
-    'libboost-all-dev',
     'git',
     'cmake',
     'tar'
@@ -80,57 +88,77 @@ const caffeMakeFileReplacements = [
     // CUSTOM_CXX
     {
         original: '# CUSTOM_CXX := g++',
-        replace: 'CUSTOM_CXX := /usr/bin/g++'
+        replace: 'CUSTOM_CXX := /usr/bin/g++',
+        isCpu: true
     },
     // USE_OPENCV
     {
         original: '# USE_OPENCV := 0',
-        replace: ' USE_OPENCV := 0'
+        replace: ' USE_OPENCV := 1',
+        isCpu: true
     },
     // USE_CUDNN
     {
         original: '# USE_CUDNN := 1',
-        replace: ' USE_CUDNN := 1'
+        replace: ' USE_CUDNN := 1',
+        isCpu: false
     },
     // todo-check version of cuda before replacement
     // -gencode arch=compute_20,code=sm_20 \
     {
         original: '-gencode arch=compute_20,code=sm_20 \\',
-        replace: '\\'
+        replace: '\\',
+        isCpu: false
     },
     // -gencode arch=compute_20,code=sm_21 \
     {
         original: '-gencode arch=compute_20,code=sm_21 \\',
-        replace: '\\'
+        replace: '\\',
+        isCpu: false
     },
     // INCLUDE_DIRS := $(PYTHON_INCLUDE) /usr/local/include
     {
         original: 'INCLUDE_DIRS := $(PYTHON_INCLUDE) /usr/local/include',
-        replace: 'INCLUDE_DIRS := $(PYTHON_INCLUDE) /usr/local/include /usr/include/hdf5/serial/'
+        replace: `INCLUDE_DIRS := $(PYTHON_INCLUDE) /usr/local/include /usr/include/hdf5/serial/ ${opencvInclude} ${isCPU() ? '' : cudaInclude}`,
+        isCpu: true
     },
     // LIBRARY_DIRS := $(PYTHON_LIB) /usr/local/lib /usr/lib
     {
         original: 'LIBRARY_DIRS := $(PYTHON_LIB) /usr/local/lib /usr/lib',
-        replace: 'LIBRARY_DIRS := $(PYTHON_LIB) /usr/local/lib /usr/lib /usr/lib/x86_64-linux-gnu/hdf5/serial/'
+        replace: `LIBRARY_DIRS := $(PYTHON_LIB) /usr/local/lib /usr/lib /usr/lib/x86_64-linux-gnu /usr/lib/x86_64-linux-gnu/hdf5/serial/ ${opencvLibDir} ${isCPU() ? '' : cudaLib} ${isCPU() ? '' : cudaLib64}`,
+        isCpu: true
     },
-    // BUILD_DIR := build
-    /* {
-         original: 'BUILD_DIR := build',
-         replace: `BUILD_DIR := ${caffeBuild}`
-     },*/
+    // BLAS := atlas
+    {
+        original: 'BLAS := atlas',
+        replace: 'BLAS := open',
+        isCpu: true
+    },
+    // # USE_PKG_CONFIG := 1 
+    // for get opencfv from LIBRARY_DIRS
+    /*{
+        original: '# USE_PKG_CONFIG := 1',
+        replace: ' USE_PKG_CONFIG := 1',
+        isCpu: true
+    },*/
     // # OPENCV_VERSION := 3
     {
         original: '# OPENCV_VERSION := 3',
-        replace: ' OPENCV_VERSION := 3'
+        replace: ' OPENCV_VERSION := 3',
+        isCpu: true
+    },
+    // # CPU_ONLY := 1
+    {
+        original: '# CPU_ONLY := 1',
+        replace: ' CPU_ONLY := 1',
+        isCpu: true
     }
 ]
 const caffeModules = [
     'caffe'
 ]
 
-//////////////////// CUDA ///////////////////////
-const cudaInclude = isOSX() ? '/Library/Frameworks/CUDA' : '/usr/local/cuda';
-const cuDnnInclude = `${cudaInclude}/include`;
+
 
 //////////////////// NCCL ///////////////////////
 const ncclRoot = path.join(rootDir, 'nccl')
@@ -183,7 +211,8 @@ module.exports = {
      * CUDA + CUDNN CONFIG
      */
     cudaInclude,
-    cuDnnInclude,
+    cudaLib,
+    cudaLib64,
     /**
      * NCCL CONFIG
      */

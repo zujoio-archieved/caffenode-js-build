@@ -98,7 +98,7 @@ const getLibNameRegex = (module, prefix, suffix) => {
  * @param {string} libFile 
  */
 const getLibAbsPath = (libDir, libFile) => {
-    let libPath = path.resolve(libDir, libFile)
+    let libPath = libFile ? path.resolve(libDir, libFile) : path.resolve(libDir);
     return (libFile ? fs.realpathSync(libPath) : undefined);
 }
 
@@ -185,13 +185,17 @@ const checkProtobufAlreadyCompiled = async () => {
  * check caffe already compiled
  */
 const checkCaffeAlreadyCompiled = async () => {
+    console.log("0.1")
     if (!fs.existsSync(caffeLibDir)) {
+        console.log("0.2")
         return false;
     }
     try {
+        console.log("0.3")
         const libFiles = fs.readdirSync(caffeLibDir);
         const prefix = getCaffeLibPrefix();
         const suffix = getCaffeLibSuffix();
+        console.log("0.4")
         return caffeModules.every(module => undefined != resolveLibPath(caffeLibDir, libFiles, module, prefix, suffix));
     }
     catch (err) {
@@ -220,7 +224,7 @@ const getLibs = () => {
     libFiles = fs.readdirSync(ncclLibDir);
     prefix = getNcclLibPrefix();
     suffix = getNcclLibSuffix();
-     ncclModules.forEach(module => {
+    ncclModules.forEach(module => {
         libraries.push({
             module: module,
             path: resolveLibPath(ncclLibDir, libFiles, module, prefix, suffix)
@@ -231,7 +235,7 @@ const getLibs = () => {
     libFiles = fs.readdirSync(protobufLibDir);
     prefix = getProtobufLibPrefix();
     suffix = getProtobufLibSuffix();
-     protobufModules.forEach(module => {
+    protobufModules.forEach(module => {
         libraries.push({
             module: module,
             path: resolveLibPath(protobufLibDir, libFiles, module, prefix, suffix)

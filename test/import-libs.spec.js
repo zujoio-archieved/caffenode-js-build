@@ -61,8 +61,11 @@ if (nodeCaffeBuild.isCPU) {
         it('should check cudaInclude is not undefined', () => {
             resolvePath(nodeCaffeBuild.cudaInclude);
         })
-        it('should check cuDnnInclude is not undefined', () => {
-            resolvePath(nodeCaffeBuild.cuDnnInclude);
+        it('should check cudaLib is not undefined', () => {
+            resolvePath(nodeCaffeBuild.cudaLib);
+        })
+        it('should check cudaLib64 is not undefined', () => {
+            resolvePath(nodeCaffeBuild.cudaLib64);
         })
     })
 
