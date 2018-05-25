@@ -1,6 +1,6 @@
 {
   "name": "caffenode-js-build",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "build caffe with GPU/CPU",
   "main": "index.js",
   "scripts": {
