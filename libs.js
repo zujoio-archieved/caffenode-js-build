@@ -3,6 +3,10 @@ const fs = require('fs');
 const log = require('npmlog');
 
 const {
+    cudaLib,
+    cudaModules,
+    cuDnnModules,
+
     opencvModules,
     opencvLibDir,
 
@@ -21,7 +25,23 @@ const {
 } = require('./plateform');
 const {
     isCPU,
-} = require('./util');
+    hasGPU
+} = require('./device');
+
+
+/**
+ * get prefix for NCCL
+ */
+const getLibPrefix = () => {
+    return 'lib';
+}
+
+/**
+ * get suffix for NCCL
+ */
+const getLibSuffix = () => {
+    return (isOSX() ? 'dylib' : 'so');
+}
 
 /**
  * config silly log as per env
@@ -44,49 +64,6 @@ const getCvLibSuffix = () => {
     return (isOSX() ? 'dylib' : 'so');
 }
 
-
-/**
- * get prefix for NCCL
- */
-const getNcclLibPrefix = () => {
-    return 'lib';
-}
-
-/**
- * get suffix for NCCL
- */
-const getNcclLibSuffix = () => {
-    return (isOSX() ? 'dylib' : 'so');
-}
-
-/**
- * get prefix for PROTOBUF
- */
-const getProtobufLibPrefix = () => {
-    return 'lib';
-}
-
-/**
- * get suffix for PROTOBUF
- */
-const getProtobufLibSuffix = () => {
-    return (isOSX() ? 'dylib' : 'so');
-}
-
-/**
- * get prefix for CAFFE
- */
-const getCaffeLibPrefix = () => {
-    return 'lib';
-}
-
-/**
- * get suffix for CAFFE
- */
-const getCaffeLibSuffix = () => {
-    return (isOSX() ? 'dylib' : 'so');
-}
-
 /**
  * get regex for matching library name
  * @param {string} module 
@@ -102,7 +79,7 @@ const getLibNameRegex = (module, prefix, suffix) => {
  */
 const getLibAbsPath = (libDir, libFile) => {
     let libPath = libFile ? path.resolve(libDir, libFile) : path.resolve(libDir);
-    return (libFile ? fs.realpathSync(libPath) : undefined);
+    return fs.realpathSync(libPath);
 }
 
 /**
@@ -125,6 +102,24 @@ const resolveLibPath = (libDir, libFiles, module, prefix, suffix) => {
     return getLibAbsPath(libDir, libFiles.find(libFile => {
         return matchLibName(libDir, libFile, module, prefix, suffix);
     }));
+}
+
+/**
+ * check all CUDA libs available
+ */
+const checkCudaCompiled = async () => {
+    if (!fs.existsSync(cudaLib)) {
+        return false;
+    }
+    try {
+        const libFiles = fs.readdirSync(cudaLib);
+        const prefix = getLibPrefix();
+        const suffix = getLibPrefix();
+        return cudaModules.every(module => undefined != resolveLibPath(cudaLib, libFiles, module, prefix, suffix));
+    }
+    catch (err) {
+        throw err;
+    }
 }
 
 /**
@@ -157,8 +152,8 @@ const checkNcclAlreadyCompiled = async () => {
 
     try {
         const libFiles = fs.readdirSync(ncclLibDir);
-        const prefix = getNcclLibPrefix();
-        const suffix = getNcclLibSuffix();
+        const prefix = getLibPrefix();
+        const suffix = getLibPrefix();
         return ncclModules.every(module => undefined != resolveLibPath(ncclLibDir, libFiles, module, prefix, suffix));
     }
     catch (err) {
@@ -175,8 +170,8 @@ const checkProtobufAlreadyCompiled = async () => {
     }
     try {
         const libFiles = fs.readdirSync(protobufLibDir);
-        const prefix = getProtobufLibPrefix();
-        const suffix = getProtobufLibSuffix();
+        const prefix = getLibPrefix();
+        const suffix = getLibPrefix();
         return protobufModules.every(module => undefined != resolveLibPath(protobufLibDir, libFiles, module, prefix, suffix));
     }
     catch (err) {
@@ -188,18 +183,19 @@ const checkProtobufAlreadyCompiled = async () => {
  * check caffe already compiled
  */
 const checkCaffeAlreadyCompiled = async () => {
-    console.log("0.1")
     if (!fs.existsSync(caffeLibDir)) {
-        console.log("0.2")
         return false;
     }
     try {
-        console.log("0.3")
         const libFiles = fs.readdirSync(caffeLibDir);
-        const prefix = getCaffeLibPrefix();
-        const suffix = getCaffeLibSuffix();
-        console.log("0.4")
-        return caffeModules.every(module => undefined != resolveLibPath(caffeLibDir, libFiles, module, prefix, suffix));
+        const prefix = getLibPrefix();
+        const suffix = getLibPrefix();
+        console.log("caffeLibDir", caffeLibDir)
+        return caffeModules.every(module => {
+            const ic = resolveLibPath(caffeLibDir, libFiles, module, prefix, suffix);
+            console.log("ic", ic);
+            return undefined != resolveLibPath(caffeLibDir, libFiles, module, prefix, suffix)
+        });
     }
     catch (err) {
         throw err;
@@ -228,8 +224,8 @@ const getLibs = () => {
     if (!isCPU()) {
         // fetching nccl dependecies
         libFiles = fs.readdirSync(ncclLibDir);
-        prefix = getNcclLibPrefix();
-        suffix = getNcclLibSuffix();
+        prefix = getLibPrefix();
+        suffix = getLibPrefix();
         ncclModules.forEach(module => {
             libraries.push({
                 prefix: prefix,
@@ -238,6 +234,28 @@ const getLibs = () => {
                 path: resolveLibPath(ncclLibDir, libFiles, module, prefix, suffix)
             });
         });
+
+        // fetching cuda libs
+        const libFiles = fs.readdirSync(cudaLib);
+        const prefix = getLibPrefix();
+        const suffix = getLibPrefix();
+        cudaModules.forEach(module => {
+            libraries.push({
+                prefix: prefix,
+                suffix: suffix,
+                module: module,
+                path: resolveLibPath(cudaLib, libFiles, module, prefix, suffix)
+            });
+        });
+        cuDnnModules.forEach(module => {
+            libraries.push({
+                prefix: prefix,
+                suffix: suffix,
+                module: module,
+                path: resolveLibPath(cudaLib, libFiles, module, prefix, suffix)
+            });
+        });
+
     }
 
 
@@ -254,8 +272,8 @@ const getLibs = () => {
 
     // featching caffe dependencies
     libFiles = fs.readdirSync(caffeLibDir);
-    prefix = getCaffeLibPrefix();
-    suffix = getCaffeLibSuffix();
+    prefix = getLibPrefix();
+    suffix = getLibPrefix();
     caffeModules.forEach(module => {
         libraries.push({
             prefix: prefix,
@@ -269,6 +287,7 @@ const getLibs = () => {
 }
 
 module.exports = {
+    checkCudaCompiled,
     checkCvAlreadyCompiled,
     checkNcclAlreadyCompiled,
     checkProtobufAlreadyCompiled,

@@ -6,13 +6,46 @@ const {
 } = require('./plateform');
 const {
     isCPU,
-} = require('./util');
+    hasGPU
+} = require('./device');
 
 //////////////////// CUDA ///////////////////////
 const cudaPath = '/usr/local/cuda';
 const cudaInclude = `${cudaPath}/include`;
 const cudaLib = `${cudaPath}/lib`;
 const cudaLib64 = `${cudaPath}/lib64`;
+const cudaModules = [
+    'accinj64',
+    'cublas',
+    'cudart',
+    'cufft',
+    'cufftw',
+    'cuinj64',
+    'curand',
+    'cusolver',
+    'cusparse',
+    'nppc',
+    'nppial',
+    'nppicc',
+    'nppicom',
+    'nppidei',
+    'nppif',
+    'nppig',
+    'nppim',
+    'nppist',
+    'nppisu',
+    'nppitc',
+    'npps',
+    'nvblas',
+    'nvgraph',
+    'nvrtc',
+    'nvrtc-builtins',
+    'nvToolsExt',
+    'OpenCL'
+]
+const cuDnnModules = [
+    'cudnn'
+]
 
 //////////////////// CV ///////////////////////
 const rootDir = __dirname;
@@ -213,6 +246,8 @@ module.exports = {
     cudaInclude,
     cudaLib,
     cudaLib64,
+    cudaModules,
+    cuDnnModules,
     /**
      * NCCL CONFIG
      */

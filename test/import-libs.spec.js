@@ -67,6 +67,15 @@ if (!nodeCaffeBuild.isCPU) {
         it('should check cudaLib64 is not undefined', () => {
             resolvePath(nodeCaffeBuild.cudaLib64);
         })
+        it('should check cudaModules is not undefined and is array.', () => {
+            checkArrayHaveEle(nodeCaffeBuild.cudaModules);
+        });
+        it('should check cudaModules is not undefined and is array.', () => {
+            checkArrayHaveEle(nodeCaffeBuild.cudaModules);
+        });
+        it('should check cuDnnModules is not undefined and is array.', () => {
+            checkArrayHaveEle(nodeCaffeBuild.cuDnnModules);
+        });
     })
 
     describe('GPU MODE: nccl import libs and deps', () => {

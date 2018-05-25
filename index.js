@@ -11,6 +11,8 @@ const {
     cudaInclude,
     cudaLib,
     cudaLib64,
+    cudaModules,
+    cuDnnModules,
 
     ncclSrc,
     ncclBuild,
@@ -36,8 +38,9 @@ const {
     caffeModules
 } = require('./config');
 const {
-    isCPU
-} = require('./util');
+    isCPU,
+    hasGPU
+} = require('./device');
 const {
     getLibs
 } = require('./libs');
@@ -54,6 +57,8 @@ module.exports = {
     cudaInclude,
     cudaLib,
     cudaLib64,
+    cudaModules,
+    cuDnnModules,
 
     ncclSrc,
     ncclBuild,
