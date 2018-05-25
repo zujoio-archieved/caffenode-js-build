@@ -24,7 +24,6 @@ const {
 
 const install_ = async () => {
     log.silly('install', 'install');
-    console.log("install")
 
     if (fs.existsSync(opencvLibDir)) {
         return;
