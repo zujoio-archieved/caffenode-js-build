@@ -62,12 +62,14 @@ module.exports = {
     ncclBinDir,
     ncclModules,
 
-    protobufSrc,
+    /*protobufSrc,
     protobufBuild,
     protobufInclude,
     protobufLibDir,
     protobufBinDir,
-    protobufModules,
+    protobufModules,*/
+
+
     caffeProtoDir,
 
     caffeSrc,
@@ -78,7 +80,7 @@ module.exports = {
     caffeMakeFileReplacements,
     caffeModules,
 
-    getLibs: getLibs(),
+    libs: getLibs(),
     isCPU: isCPU()
 }
 

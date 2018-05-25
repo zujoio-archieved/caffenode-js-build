@@ -19,6 +19,9 @@ const {
 const {
     isOSX,
 } = require('./plateform');
+const {
+    isCPU,
+} = require('./util');
 
 /**
  * config silly log as per env
@@ -215,24 +218,31 @@ const getLibs = () => {
     let suffix = getCvLibSuffix();
     opencvModules.forEach(module => {
         libraries.push({
+            prefix: prefix,
+            suffix: suffix,
             module: module,
             path: resolveLibPath(opencvLibDir, libFiles, module, prefix, suffix)
         });
     });
 
-    // fetching nccl dependecies
-    libFiles = fs.readdirSync(ncclLibDir);
-    prefix = getNcclLibPrefix();
-    suffix = getNcclLibSuffix();
-    ncclModules.forEach(module => {
-        libraries.push({
-            module: module,
-            path: resolveLibPath(ncclLibDir, libFiles, module, prefix, suffix)
+    if (!isCPU()) {
+        // fetching nccl dependecies
+        libFiles = fs.readdirSync(ncclLibDir);
+        prefix = getNcclLibPrefix();
+        suffix = getNcclLibSuffix();
+        ncclModules.forEach(module => {
+            libraries.push({
+                prefix: prefix,
+                suffix: suffix,
+                module: module,
+                path: resolveLibPath(ncclLibDir, libFiles, module, prefix, suffix)
+            });
         });
-    });
+    }
+
 
     // fetching protobuf dependencies
-    libFiles = fs.readdirSync(protobufLibDir);
+    /*libFiles = fs.readdirSync(protobufLibDir);
     prefix = getProtobufLibPrefix();
     suffix = getProtobufLibSuffix();
     protobufModules.forEach(module => {
@@ -240,7 +250,7 @@ const getLibs = () => {
             module: module,
             path: resolveLibPath(protobufLibDir, libFiles, module, prefix, suffix)
         });
-    });
+    });*/
 
     // featching caffe dependencies
     libFiles = fs.readdirSync(caffeLibDir);
@@ -248,6 +258,8 @@ const getLibs = () => {
     suffix = getCaffeLibSuffix();
     caffeModules.forEach(module => {
         libraries.push({
+            prefix: prefix,
+            suffix: suffix,
             module: module,
             path: resolveLibPath(caffeLibDir, libFiles, module, prefix, suffix)
         });

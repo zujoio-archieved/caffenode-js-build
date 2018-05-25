@@ -56,7 +56,7 @@ describe('opencv import libs and deps', () => {
     });
 });
 
-if (nodeCaffeBuild.isCPU) {
+if (!nodeCaffeBuild.isCPU) {
     describe('GPU MODE: cuda import libs and deps', () => {
         it('should check cudaInclude is not undefined', () => {
             resolvePath(nodeCaffeBuild.cudaInclude);
@@ -91,7 +91,7 @@ if (nodeCaffeBuild.isCPU) {
     })
 }
 
-describe('protobuf import libs and deps', () => {
+/*describe('protobuf import libs and deps', () => {
     it('should check protobufSrc is not undefined.', () => {
         resolvePath(nodeCaffeBuild.protobufSrc);
     });
@@ -110,7 +110,7 @@ describe('protobuf import libs and deps', () => {
     it('should check caffeProtoDir is not undefined.', () => {
         resolvePath(nodeCaffeBuild.caffeProtoDir);
     });
-});
+});*/
 
 describe('caffe import libs and deps', () => {
     it('should check caffeSrc is not undefined.', () => {
@@ -135,8 +135,10 @@ describe('caffe import libs and deps', () => {
 
 describe('fetch all libs and validate paths', () => {
     it('should check get libs available', () => {
-        checkArrayHaveEle(nodeCaffeBuild.getLibs);
-        nodeCaffeBuild.getLibs.forEach(lib => {
+        checkArrayHaveEle(nodeCaffeBuild.libs);
+        nodeCaffeBuild.libs.forEach(lib => {
+            expect(lib).to.have.property('prefix');
+            expect(lib).to.have.property('suffix');
             expect(lib).to.have.property('module');
             expect(lib).to.have.property('path');
             resolvePath(lib.path);
