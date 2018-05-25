@@ -190,10 +190,8 @@ const checkCaffeAlreadyCompiled = async () => {
         const libFiles = fs.readdirSync(caffeLibDir);
         const prefix = getLibPrefix();
         const suffix = getLibPrefix();
-        console.log("caffeLibDir", caffeLibDir)
         return caffeModules.every(module => {
             const ic = resolveLibPath(caffeLibDir, libFiles, module, prefix, suffix);
-            console.log("ic", ic);
             return undefined != resolveLibPath(caffeLibDir, libFiles, module, prefix, suffix)
         });
     }

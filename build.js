@@ -241,7 +241,6 @@ const buildCaffe = async () => {
         return;
     }
     return;
-    console.log("1")
 
     /**
      * create dir caffe
@@ -250,7 +249,6 @@ const buildCaffe = async () => {
         await exec(getMakeDirCommand('caffe'), { cwd: rootDir });
     }
 
-    console.log("2")
 
     /**
      * clone caffe 
@@ -260,7 +258,6 @@ const buildCaffe = async () => {
         await spawn('git', ['clone', '--progress', caffeRepo], { cwd: caffeRoot });
     }
 
-    console.log("3")
 
     // copy config makefile
     await exec(getRmDirCommand('Makefile.config'), { cwd: caffeSrc });
