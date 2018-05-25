@@ -25,6 +25,10 @@ const {
     isOSX,
     installPackage
 } = require('./plateform');
+const {
+    isCPU,
+    hasGPU
+} = require('./device');
 /**
  * VALIDATE MAKE AND GIT
  */
@@ -68,8 +72,8 @@ const getCvSharedCmakeFlags_ = () => {
         `-DOPENCV_EXTRA_MODULES_PATH=${opencvContribModules}`,
 
         // GPU / CPU
-        `-DBUILD_opencv_gpu=${!isCPU_() ? 'ON' : 'OFF'}`,
-        `-DWITH_CUDA=${!isCPU_() ? 'ON' : 'OFF'}`,
+        `-DBUILD_opencv_gpu=${!isCPU() ? 'ON' : 'OFF'}`,
+        `-DWITH_CUDA=${!isCPU() ? 'ON' : 'OFF'}`,
 
         '-DBUILD_EXAMPLES=OFF',
         '-DBUILD_DOCS=OFF',
@@ -117,21 +121,7 @@ const getCvSharedCmakeFlags_ = () => {
 const getCvCmakeArgs_ = (cMakeFlags) => {
     return [opencvSrc].concat(cMakeFlags);
 }
-/**
- * check whether system have GPU installed
- */
-const hasGPU = async () => {
-    const stdout = await exec('which nvidia-smi');
-    log.silly('install', stdout);
-    return (stdout != undefined ? false : true);
-}
-/**
- * check whether user have defined to build on basis of GPU
- * default: CPU MODE
- */
-const isCPU_ = () => {
-    return process.env.CPU_ONLY != undefined ? process.env.CPU_ONLY : 1;
-}
+
 /**
  * check whether cuda installd in system
  */
@@ -186,8 +176,6 @@ module.exports = {
 
     getCvSharedCmakeFlags: getCvSharedCmakeFlags_,
     getCvCmakeArgs: getCvCmakeArgs_,
-
-    isCPU: isCPU_,
 
     isCudaInstalled: isCudaInstalled_,
     isCuDnnInstallted: isCuDnnInstallted_,

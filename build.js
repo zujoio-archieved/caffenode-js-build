@@ -15,8 +15,6 @@ const {
     getCvSharedCmakeFlags,
     getCvCmakeArgs,
 
-    isCPU,
-
     isCudaInstalled,
     isCuDnnInstallted,
     installCaffeDependencies,
@@ -60,12 +58,16 @@ const {
     numberOfCores
 } = require('./config');
 const {
+    checkCudaCompiled,
     checkCvAlreadyCompiled,
     checkNcclAlreadyCompiled,
     checkProtobufAlreadyCompiled,
     checkCaffeAlreadyCompiled
 } = require('./libs');
-
+const {
+    isCPU,
+    hasGPU
+} = require('./device');
 
 /**
  * build opencv 
@@ -238,6 +240,7 @@ const buildCaffe = async () => {
         log.silly('install', 'caffe already installed');
         return;
     }
+    return;
     console.log("1")
 
     /**
@@ -269,6 +272,7 @@ const buildCaffe = async () => {
     // compile caffe
     await spawn('make', ['clean'], { cwd: caffeSrc });
     await spawn('make', ['all', `-j${numberOfCores}`], { cwd: caffeSrc });
+    await spawn('make', ['test', `-j${numberOfCores}`], { cwd: caffeSrc });
 
     // compile proto header
     await spawn('protoc', ['caffe.proto', '--cpp_out=.'], { cwd: caffeProtoDir });
@@ -290,7 +294,7 @@ const build_ = async () => {
     // check cuda and cuDnn installation for GPU mode 
     if (!isCpuEnable) {
         // check whether cuda installed
-        if (! await isCudaInstalled()) {
+        if (! await isCudaInstalled() || !await checkCudaCompiled()) {
             throw new Error("CUDA not installed, either install CUDA or if you want to compile for CPU mode only. set CPU_ONLY=1.")
             return;
         }
