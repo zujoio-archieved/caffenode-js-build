@@ -240,7 +240,6 @@ const buildCaffe = async () => {
         log.silly('install', 'caffe already installed');
         return;
     }
-    return;
 
     /**
      * create dir caffe
