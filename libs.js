@@ -227,7 +227,7 @@ const getLibs = () => {
             // fetching nccl dependecies
             libFiles = fs.readdirSync(ncclLibDir);
             prefix = getLibPrefix();
-            suffix = getLibPrefix();
+            suffix = getLibSuffix();
             ncclModules.forEach(module => {
                 libraries.push({
                     prefix: prefix,
@@ -242,7 +242,7 @@ const getLibs = () => {
             // fetching cuda libs
             const libFiles = fs.readdirSync(cudaLib);
             const prefix = getLibPrefix();
-            const suffix = getLibPrefix();
+            const suffix = getLibSuffix();
             cudaModules.forEach(module => {
                 libraries.push({
                     prefix: prefix,
@@ -279,14 +279,15 @@ const getLibs = () => {
         // featching caffe dependencies
         libFiles = fs.readdirSync(caffeLibDir);
         prefix = getLibPrefix();
-        suffix = getLibPrefix();
+        suffix = getLibSuffix();
         caffeModules.forEach(module => {
-            libraries.push({
+            const lib = {
                 prefix: prefix,
                 suffix: suffix,
                 module: module,
                 path: resolveLibPath(caffeLibDir, libFiles, module, prefix, suffix)
-            });
+            }
+            libraries.push(lib);
         });
     }
 
