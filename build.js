@@ -118,6 +118,8 @@ const buildCv = async () => {
     await spawn('make', ['install', `-j${numberOfCores}`], { cwd: opencvBuild });
 
     await spawn('make', ['all', `-j${numberOfCores}`], { cwd: opencvBuild });
+
+
 }
 
 /**
@@ -288,7 +290,7 @@ const build_ = async () => {
     }
 
     // check cuda and cuDnn installation for GPU mode 
-    if (!isCpuEnable) {
+    /*if (!isCpuEnable) {
         // check whether cuda installed
         if (! await isCudaInstalled() || !await checkCudaCompiled()) {
             throw new Error("CUDA not installed, either install CUDA or if you want to compile for CPU mode only. set CPU_ONLY=1.")
@@ -299,7 +301,7 @@ const build_ = async () => {
             throw new Error("CUDA not installed, either install CUDA or if you want to compile for CPU mode only. set CPU_ONLY=1.")
             return;
         }
-    }
+    }*/
 
     // install dependent libraries for 
     // await installCaffeDependencies();

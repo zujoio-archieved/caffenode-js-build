@@ -4,6 +4,7 @@ const {
     opencvSrc,
 
     cudaInclude,
+    cudaPath,
 
     protobufBuild,
 
@@ -126,7 +127,8 @@ const getCvCmakeArgs_ = (cMakeFlags) => {
  * check whether cuda installd in system
  */
 const isCudaInstalled_ = async () => {
-    const stdout = await exec(`cat ${cudaInclude}/version.txt`);
+    console.log("`cat ${cudaPath}/version.txt`", `cat ${cudaPath}/version.txt`)
+    const stdout = await exec(`cat ${cudaPath}/version.txt`);
     log.silly('install', stdout);
     return (stdout == undefined ? false : true);
 }

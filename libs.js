@@ -153,7 +153,7 @@ const checkNcclAlreadyCompiled = async () => {
     try {
         const libFiles = fs.readdirSync(ncclLibDir);
         const prefix = getLibPrefix();
-        const suffix = getLibPrefix();
+        const suffix = getLibSuffix();
         return ncclModules.every(module => undefined != resolveLibPath(ncclLibDir, libFiles, module, prefix, suffix));
     }
     catch (err) {
@@ -171,7 +171,7 @@ const checkProtobufAlreadyCompiled = async () => {
     try {
         const libFiles = fs.readdirSync(protobufLibDir);
         const prefix = getLibPrefix();
-        const suffix = getLibPrefix();
+        const suffix = getLibSuffix();
         return protobufModules.every(module => undefined != resolveLibPath(protobufLibDir, libFiles, module, prefix, suffix));
     }
     catch (err) {
@@ -189,7 +189,7 @@ const checkCaffeAlreadyCompiled = async () => {
     try {
         const libFiles = fs.readdirSync(caffeLibDir);
         const prefix = getLibPrefix();
-        const suffix = getLibPrefix();
+        const suffix = getLibSuffix();
         return caffeModules.every(module => {
             const ic = resolveLibPath(caffeLibDir, libFiles, module, prefix, suffix);
             return undefined != resolveLibPath(caffeLibDir, libFiles, module, prefix, suffix)
