@@ -183,7 +183,7 @@ const caffeMakeFileReplacements = [
     // # CPU_ONLY := 1
     {
         original: '# CPU_ONLY := 1',
-        replace: ' CPU_ONLY := 1',
+        replace: `${ isCPU() ? 'CPU_ONLY := 1' : 'CPU_ONLY := 0' }`,
         isCpu: true
     }
 ]
@@ -243,6 +243,7 @@ module.exports = {
     /**
      * CUDA + CUDNN CONFIG
      */
+    cudaPath,
     cudaInclude,
     cudaLib,
     cudaLib64,

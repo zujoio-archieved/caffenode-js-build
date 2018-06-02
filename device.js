@@ -14,7 +14,7 @@ const hasGPU_ = async () => {
  * default: CPU MODE
  */
 const isCPU_ = () => {
-    return process.env.CPU_ONLY != undefined ? process.env.CPU_ONLY : 1;
+    return process.env.CPU_ONLY != undefined ? process.env.CPU_ONLY : 0;
 }
 
 module.exports = {
