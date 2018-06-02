@@ -117,7 +117,7 @@ const caffeDependeciesDarvin = [
     'boost',
     'webp' // opencv 3 dependecy
 ];
-const caffeMakeFileReplacements = [
+let caffeMakeFileReplacements = [
     // CUSTOM_CXX
     {
         original: '# CUSTOM_CXX := g++',
@@ -158,7 +158,7 @@ const caffeMakeFileReplacements = [
     // LIBRARY_DIRS := $(PYTHON_LIB) /usr/local/lib /usr/lib
     {
         original: 'LIBRARY_DIRS := $(PYTHON_LIB) /usr/local/lib /usr/lib',
-        replace: `LIBRARY_DIRS := $(PYTHON_LIB) /usr/local/lib /usr/lib /usr/lib/x86_64-linux-gnu /usr/lib/x86_64-linux-gnu/hdf5/serial/ ${opencvLibDir} ${isCPU() ? '' : cudaLib} ${isCPU() ? '' : cudaLib64}`,
+        replace: `LIBRARY_DIRS := $(PYTHON_LIB) /usr/local/lib /usr/lib ${!isOSX() ? '/usr/lib/x86_64-linux-gnu /usr/lib/x86_64-linux-gnu/hdf5/serial/' : ''} ${opencvLibDir} ${isCPU() ? '' : cudaLib} ${isCPU() ? '' : cudaLib64}`,
         isCpu: true
     },
     // BLAS := atlas
@@ -187,6 +187,26 @@ const caffeMakeFileReplacements = [
         isCpu: true
     }
 ]
+
+if(isOSX()){
+    // BLAS_INCLUDE
+    caffeMakeFileReplacements.push({
+        original: "# BLAS_INCLUDE := $(shell brew --prefix openblas)/include",
+        replace: "BLAS_INCLUDE := $(shell brew --prefix openblas)/include",
+        isCpu: true
+    })
+    // BLAS_LIB
+    caffeMakeFileReplacements.push({
+        original: "# BLAS_LIB := $(shell brew --prefix openblas)/lib",
+        replace: "BLAS_LIB := $(shell brew --prefix openblas)/lib",
+        isCpu: true
+    })
+}
+
+
+
+
+
 const caffeModules = [
     'caffe'
 ]
