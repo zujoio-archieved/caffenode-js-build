@@ -1,5 +1,6 @@
 const { expect } = require('chai');
 const path = require('path');
+const fs = require('fs');
 const nodeCaffeBuild = require('../index');
 
 const indexZero = 0;
@@ -10,7 +11,10 @@ const indexZero = 0;
  */
 const resolvePath = (dirPath) => {
     expect(dirPath).to.not.eql(undefined);
-    expect(path.resolve(dirPath)).to.not.eql(undefined);
+    const resolvedDirPath = path.resolve(dirPath);
+    expect(resolvedDirPath).to.not.eql(undefined);
+    expect(fs.existsSync(resolvedDirPath)).to.not.eql(undefined);
+    expect(fs.existsSync(resolvedDirPath)).to.eql(true);
 }
 
 /**
@@ -35,9 +39,6 @@ describe('opencv import libs and includes', () => {
     });
     it('should check opencvInclude is not undefined.', () => {
         resolvePath(nodeCaffeBuild.opencvInclude);
-    });
-    it('should check opencvSrcInclude is not undefined.', () => {
-        resolvePath(nodeCaffeBuild.opencvSrcInclude);
     });
 });
 
