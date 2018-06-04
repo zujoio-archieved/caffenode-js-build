@@ -1,3 +1,4 @@
+const packageJson = require('./package.json')
 const {
     exec,
 } = require('./native');
@@ -14,7 +15,12 @@ const hasGPU_ = async () => {
  * default: CPU MODE
  */
 const isCPU_ = () => {
-    return process.env.CPU_ONLY != undefined ? process.env.CPU_ONLY : 0;
+    if(packageJson && packageJson.name && packageJson.name == 'caffenode-js-build'){
+        return 1
+    }
+    else{
+        return 0;
+    }
 }
 
 module.exports = {

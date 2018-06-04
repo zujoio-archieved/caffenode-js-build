@@ -7,9 +7,6 @@ log.level = 'silly'
 //}
 
 const {
-    opencvModules
-} = require('./config');
-const {
     isWindows,
     isOSX,
 } = require('./plateform');
@@ -24,13 +21,7 @@ const {
 
 const install_ = async () => {
     log.silly('install', 'install');
-
-    if (fs.existsSync(opencvLibDir)) {
-        return;
-    }
-
     try {
-
         await requireGit();
         await requireCmake();
         await build();

@@ -81,18 +81,25 @@ module.exports = {
     caffeMakeFileReplacements,
     caffeModules,
 
-    libs: getLibs(),
-    isCPU: isCPU(),
+
 
 
     // for new version
-    // libs
-    opencvLibDir,
-    caffeLibDir,
 
     // includes
     caffeInclude,
     opencvInclude,
+
+    // libs
+    opencvLibDir,
+    caffeLibDir,
+
+    // fetching required libs
+    libs: getLibs(),
+
+
+    // GPU / CPU
+    isCPU: isCPU(),
 
 }
 
