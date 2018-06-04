@@ -2,7 +2,6 @@ const {
     opencvBuild,
     opencvInclude,
     opencvLibDir,
-    opencvSrcInclude,
 
     cudaInclude,
     cudaLib,
@@ -31,7 +30,6 @@ module.exports = {
     caffeInclude,
     caffeProtoDir,
     opencvInclude,
-    opencvSrcInclude,
     cudaInclude,
 
     // libs
