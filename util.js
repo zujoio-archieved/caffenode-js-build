@@ -8,8 +8,6 @@ const {
     cudaInclude,
     cudaPath,
 
-    protobufBuild,
-
     caffeDependeciesLinux,
     caffeDependeciesDarvin,
 

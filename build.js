@@ -15,20 +15,13 @@ const {
     getCvSharedCmakeFlags,
     getCvCmakeArgs,
 
-    isCudaInstalled,
-    isCuDnnInstallted,
-    installCaffeDependencies,
-
-    getNcclCmakeArgs,
-    getProtobufCmakeArgs
+    getNcclCmakeArgs
 } = require('./util');
 const {
     rootDir,
     opencvRoot,
     opencvSrc,
     opencvContribSrc,
-
-    opencvContribModules,
 
     opencvBuild,
     opencvTag,
@@ -53,8 +46,7 @@ const {
 } = require('./config');
 
 const {
-    isCPU,
-    hasGPU
+    isCPU
 } = require('./device');
 
 /**

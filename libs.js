@@ -2,6 +2,12 @@ const path = require('path');
 const fs = require('fs');
 const log = require('npmlog');
 
+/**
+ * config silly log as per env
+ */
+if (process.env.npm_config_loglevel === 'silly') {
+    log.level = 'silly'
+}
 const {
     commonModules,
 
@@ -45,12 +51,7 @@ const getLibSuffix = () => {
     return (isOSX() ? 'dylib' : 'so');
 }
 
-/**
- * config silly log as per env
- */
-if (process.env.npm_config_loglevel === 'silly') {
-    log.level = 'silly'
-}
+
 
 /**
  * get prefix for CV

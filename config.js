@@ -84,6 +84,7 @@ const opencvContribSrc = path.join(opencvRoot, 'opencv_contrib');
 const opencvContribModules = path.join(opencvContribSrc, 'modules');
 const opencvBuild = path.join(opencvRoot, 'build');
 const opencvInclude = path.join(opencvBuild, 'include');
+const opencvSrcInclude = path.join(opencvBuild, 'src');
 const opencvLibDir = path.join(opencvBuild, 'lib');
 const opencvBinDir = path.join(opencvBuild, 'bin');
 const opencvTag = '3.4.1';
@@ -243,6 +244,7 @@ module.exports = {
     opencvInclude,
     opencvLibDir,
     opencvBinDir,
+    opencvSrcInclude,
     /**
      * OPENCV REPO
      */
