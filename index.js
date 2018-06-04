@@ -50,8 +50,6 @@ module.exports = {
     opencvContribSrc,
     opencvContribModules,
     opencvBuild,
-    opencvInclude,
-    opencvLibDir,
     opencvBinDir,
 
     cudaInclude,
@@ -79,13 +77,22 @@ module.exports = {
 
     caffeSrc,
     caffeBuild,
-    caffeInclude,
-    caffeLibDir,
 
     caffeMakeFileReplacements,
     caffeModules,
 
     libs: getLibs(),
-    isCPU: isCPU()
+    isCPU: isCPU(),
+
+
+    // for new version
+    // libs
+    opencvLibDir,
+    caffeLibDir,
+
+    // includes
+    caffeInclude,
+    opencvInclude,
+
 }
 

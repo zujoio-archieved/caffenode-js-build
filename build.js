@@ -303,17 +303,14 @@ const build_ = async () => {
         }
     }*/
 
-    // install dependent libraries for 
-    // await installCaffeDependencies();
-
-    // build opencv todo: compile cuda libs in GPU mode
-    await buildCv();
-
-
+    // NCCL required for both CV CUDA and Caffe CUDA
     if (!isCpuEnable) {
         // build NCCL
         await buildNccl();
     }
+
+    // build opencv todo: compile cuda libs in GPU mode
+    await buildCv();
 
     // build protobuf
     //await buildProtobuf();

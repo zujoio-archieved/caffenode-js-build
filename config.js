@@ -9,6 +9,15 @@ const {
     hasGPU
 } = require('./device');
 
+//////////////////// COMMON /////////////////////
+const commonModules = [
+    'pthread',
+    'pthread',
+    'boost_system',
+    'glog',
+    'boost_filesystem'
+]
+
 //////////////////// CUDA ///////////////////////
 const cudaPath = '/usr/local/cuda';
 const cudaInclude = `${cudaPath}/include`;
@@ -187,7 +196,6 @@ let caffeMakeFileReplacements = [
         isCpu: true
     }
 ]
-
 if(isOSX()){
     // BLAS_INCLUDE
     caffeMakeFileReplacements.push({
@@ -203,14 +211,9 @@ if(isOSX()){
     })
 }
 
-
-
-
-
 const caffeModules = [
     'caffe'
 ]
-
 
 
 //////////////////// NCCL ///////////////////////
