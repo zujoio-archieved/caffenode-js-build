@@ -2,11 +2,11 @@ const {
     opencvBuild,
     opencvContribModules,
     opencvSrc,
+    opencvLibDir,
+    opencvModules,
 
     cudaInclude,
     cudaPath,
-
-    protobufBuild,
 
     caffeDependeciesLinux,
     caffeDependeciesDarvin,
@@ -161,12 +161,10 @@ const getNcclCmakeArgs_ = (cMakeFlags) => {
 }
 
 /**
- * getting flags for 
+ * fetching LDFLAGS for caffe make
  */
-const getProtobufCmakeArgs_ = () => {
-    return [
-        `PREFIX=${protobufBuild}`
-    ];
+const getCaffeMakeLDFLAGS_ = () => {
+    return `LDFLAGS="-L${opencvLibDir} ${opencvModules.map(lib => `-l${lib}`)} "`;
 }
 
 module.exports = {
@@ -184,6 +182,6 @@ module.exports = {
     installCaffeDependencies: installCaffeDependencies_,
 
     getNcclCmakeArgs: getNcclCmakeArgs_,
-    getProtobufCmakeArgs: getProtobufCmakeArgs_
+    getCaffeMakeLDFLAGS: getCaffeMakeLDFLAGS_
 
 }

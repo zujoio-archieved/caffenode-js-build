@@ -2,7 +2,15 @@ const path = require('path');
 const fs = require('fs');
 const log = require('npmlog');
 
+/**
+ * config silly log as per env
+ */
+if (process.env.npm_config_loglevel === 'silly') {
+    log.level = 'silly'
+}
 const {
+    commonModules,
+
     cudaLib,
     cudaModules,
     cuDnnModules,
@@ -43,12 +51,7 @@ const getLibSuffix = () => {
     return (isOSX() ? 'dylib' : 'so');
 }
 
-/**
- * config silly log as per env
- */
-if (process.env.npm_config_loglevel === 'silly') {
-    log.level = 'silly'
-}
+
 
 /**
  * get prefix for CV
@@ -104,201 +107,30 @@ const resolveLibPath = (libDir, libFiles, module, prefix, suffix) => {
     }));
 }
 
-/**
- * check all CUDA libs available
- */
-const checkCudaCompiled = async () => {
-    if (!fs.existsSync(cudaLib)) {
-        return false;
-    }
-    try {
-        const libFiles = fs.readdirSync(cudaLib);
-        const prefix = getLibPrefix();
-        const suffix = getLibPrefix();
-        return cudaModules.every(module => undefined != resolveLibPath(cudaLib, libFiles, module, prefix, suffix));
-    }
-    catch (err) {
-        throw err;
-    }
-}
-
-/**
- * check whether all libraries are installed
- */
-const checkCvAlreadyCompiled = async () => {
-    if (!fs.existsSync(opencvLibDir)) {
-        return false;
-    }
-
-    try {
-        const libFiles = fs.readdirSync(opencvLibDir);
-        const prefix = getCvLibPrefix();
-        const suffix = getCvLibSuffix();
-        return opencvModules.every(module => undefined != resolveLibPath(opencvLibDir, libFiles, module, prefix, suffix));
-    }
-    catch (err) {
-        throw err;
-    }
-}
-
-
-/**
- * check whether NCCL installed successfully
- */
-const checkNcclAlreadyCompiled = async () => {
-    if (!fs.existsSync(ncclLibDir)) {
-        return false;
-    }
-
-    try {
-        const libFiles = fs.readdirSync(ncclLibDir);
-        const prefix = getLibPrefix();
-        const suffix = getLibSuffix();
-        return ncclModules.every(module => undefined != resolveLibPath(ncclLibDir, libFiles, module, prefix, suffix));
-    }
-    catch (err) {
-        throw err;
-    }
-}
-
-/**
- * check protobuf already compiled
- */
-const checkProtobufAlreadyCompiled = async () => {
-    if (!fs.existsSync(protobufLibDir)) {
-        return false;
-    }
-    try {
-        const libFiles = fs.readdirSync(protobufLibDir);
-        const prefix = getLibPrefix();
-        const suffix = getLibSuffix();
-        return protobufModules.every(module => undefined != resolveLibPath(protobufLibDir, libFiles, module, prefix, suffix));
-    }
-    catch (err) {
-        throw err;
-    }
-}
-
-/**
- * check caffe already compiled
- */
-const checkCaffeAlreadyCompiled = async () => {
-    if (!fs.existsSync(caffeLibDir)) {
-        return false;
-    }
-    try {
-        const libFiles = fs.readdirSync(caffeLibDir);
-        const prefix = getLibPrefix();
-        const suffix = getLibSuffix();
-        return caffeModules.every(module => {
-            const ic = resolveLibPath(caffeLibDir, libFiles, module, prefix, suffix);
-            return undefined != resolveLibPath(caffeLibDir, libFiles, module, prefix, suffix)
-        });
-    }
-    catch (err) {
-        throw err;
-    }
-}
 
 /**
  * fetching all dependent libraries
  */
 const getLibs = () => {
-    let libraries = [];
+    let libraries = commonModules;
+    libraries = libraries.concat(opencvModules);
 
-    // fetching cv dependencies
-    if (fs.existsSync(opencvLibDir)) {
-
-        let libFiles = fs.readdirSync(opencvLibDir);
-        let prefix = getCvLibPrefix();
-        let suffix = getCvLibSuffix();
-        opencvModules.forEach(module => {
-            libraries.push({
-                prefix: prefix,
-                suffix: suffix,
-                module: module,
-                path: resolveLibPath(opencvLibDir, libFiles, module, prefix, suffix)
-            });
-        });
-    }
-
+    // include NCCL and CUDA dependencies
     if (!isCPU()) {
-        if (fs.existsSync(ncclLibDir)) {
-            // fetching nccl dependecies
-            libFiles = fs.readdirSync(ncclLibDir);
-            prefix = getLibPrefix();
-            suffix = getLibSuffix();
-            ncclModules.forEach(module => {
-                libraries.push({
-                    prefix: prefix,
-                    suffix: suffix,
-                    module: module,
-                    path: resolveLibPath(ncclLibDir, libFiles, module, prefix, suffix)
-                });
-            });
-        }
-
-        if (fs.existsSync(cudaLib)) {
-            // fetching cuda libs
-            const libFiles = fs.readdirSync(cudaLib);
-            const prefix = getLibPrefix();
-            const suffix = getLibSuffix();
-            cudaModules.forEach(module => {
-                libraries.push({
-                    prefix: prefix,
-                    suffix: suffix,
-                    module: module,
-                    path: resolveLibPath(cudaLib, libFiles, module, prefix, suffix)
-                });
-            });
-            cuDnnModules.forEach(module => {
-                libraries.push({
-                    prefix: prefix,
-                    suffix: suffix,
-                    module: module,
-                    path: resolveLibPath(cudaLib, libFiles, module, prefix, suffix)
-                });
-            });
-        }
-
+        libraries = libraries.concat(ncclModules);
+        libraries = libraries.concat(cuDnnModules);
     }
 
+    // include caffe dependencies
+    libraries = libraries.concat(caffeModules);
 
-    // fetching protobuf dependencies
-    /*libFiles = fs.readdirSync(protobufLibDir);
-    prefix = getProtobufLibPrefix();
-    suffix = getProtobufLibSuffix();
-    protobufModules.forEach(module => {
-        libraries.push({
-            module: module,
-            path: resolveLibPath(protobufLibDir, libFiles, module, prefix, suffix)
-        });
-    });*/
-
-    if (fs.existsSync(caffeLibDir)) {
-        // featching caffe dependencies
-        libFiles = fs.readdirSync(caffeLibDir);
-        prefix = getLibPrefix();
-        suffix = getLibSuffix();
-        caffeModules.forEach(module => {
-            const lib = {
-                prefix: prefix,
-                suffix: suffix,
-                module: module,
-                path: resolveLibPath(caffeLibDir, libFiles, module, prefix, suffix)
-            }
-            libraries.push(lib);
-        });
-    }
+    // include as flags
+    libraries.map(lib =>  `-l${lib}`);
 
     return libraries;
 }
 
+
 module.exports = {
-    checkCudaCompiled,
-    checkCvAlreadyCompiled,
-    checkNcclAlreadyCompiled,
-    checkProtobufAlreadyCompiled,
-    checkCaffeAlreadyCompiled,
     getLibs
 }

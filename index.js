@@ -1,41 +1,18 @@
 const {
-    opencvSrc,
-    opencvModules,
-    opencvContribSrc,
-    opencvContribModules,
     opencvBuild,
     opencvInclude,
     opencvLibDir,
-    opencvBinDir,
+    opencvSrcInclude,
 
     cudaInclude,
     cudaLib,
     cudaLib64,
-    cudaModules,
-    cuDnnModules,
 
-    ncclSrc,
-    ncclBuild,
-    ncclInclude,
-    ncclLibDir,
-    ncclBinDir,
-    ncclModules,
-
-    protobufSrc,
-    protobufBuild,
-    protobufInclude,
-    protobufLibDir,
-    protobufBinDir,
-    protobufModules,
-    caffeProtoDir,
-
-    caffeSrc,
     caffeBuild,
+    caffeProtoDir,
+    caffeSrc,
     caffeInclude,
-    caffeLibDir,
-
-    caffeMakeFileReplacements,
-    caffeModules
+    caffeLibDir
 } = require('./config');
 const {
     isCPU,
@@ -45,54 +22,28 @@ const {
     getLibs
 } = require('./libs');
 module.exports = {
-    opencvSrc,
-    opencvModules,
-    opencvContribSrc,
-    opencvContribModules,
-    opencvBuild,
-    opencvBinDir,
 
-    cudaInclude,
-    cudaLib,
-    cudaLib64,
-    cudaModules,
-    cuDnnModules,
-
-    ncclSrc,
-    ncclBuild,
-    ncclInclude,
-    ncclLibDir,
-    ncclBinDir,
-    ncclModules,
-
-    /*protobufSrc,
-    protobufBuild,
-    protobufInclude,
-    protobufLibDir,
-    protobufBinDir,
-    protobufModules,*/
-
-
-    caffeProtoDir,
-
-    caffeSrc,
+    // build
     caffeBuild,
-
-    caffeMakeFileReplacements,
-    caffeModules,
-
-    libs: getLibs(),
-    isCPU: isCPU(),
-
-
-    // for new version
-    // libs
-    opencvLibDir,
-    caffeLibDir,
+    opencvBuild,
 
     // includes
     caffeInclude,
+    caffeProtoDir,
     opencvInclude,
+    opencvSrcInclude,
+    cudaInclude,
 
+    // libs
+    opencvLibDir,
+    caffeLibDir,
+    cudaLib,
+    cudaLib64,
+
+    // fetching required libs
+    libs: getLibs(),
+
+    // GPU / CPU
+    isCPU: isCPU()
 }
 

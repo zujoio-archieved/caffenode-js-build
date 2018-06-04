@@ -61,29 +61,30 @@ const rootDir = __dirname;
 const opencvRoot = path.join(rootDir, 'opencv');
 const opencvSrc = path.join(opencvRoot, 'opencv');
 const opencvModules = [
-    'core',
-    'highgui',
-    'imgcodecs',
-    'imgproc',
-    'features2d',
-    'calib3d',
+    'opencv_core',
+    'opencv_highgui',
+    'opencv_imgcodecs',
+    'opencv_imgproc',
+    'opencv_features2d',
+    'opencv_calib3d',
     'photo',
-    'objdetect',
-    'ml',
-    'video',
-    'videoio',
-    'videostab',
-    'dnn',
-    'face',
-    'text',
-    'tracking',
-    'xfeatures2d',
-    'ximgproc'
+    'opencv_objdetect',
+    'opencv_ml',
+    'opencv_video',
+    'opencv_videoio',
+    'opencv_videostab',
+    'opencv_dnn',
+    'opencv_face',
+    'opencv_text',
+    'opencv_tracking',
+    'opencv_xfeatures2d',
+    'opencv_ximgproc'
 ]
 const opencvContribSrc = path.join(opencvRoot, 'opencv_contrib');
 const opencvContribModules = path.join(opencvContribSrc, 'modules');
 const opencvBuild = path.join(opencvRoot, 'build');
 const opencvInclude = path.join(opencvBuild, 'include');
+const opencvSrcInclude = path.join(opencvBuild, 'src');
 const opencvLibDir = path.join(opencvBuild, 'lib');
 const opencvBinDir = path.join(opencvBuild, 'bin');
 const opencvTag = '3.4.1';
@@ -133,12 +134,6 @@ let caffeMakeFileReplacements = [
         replace: 'CUSTOM_CXX := /usr/bin/g++',
         isCpu: true
     },
-    // USE_OPENCV
-    {
-        original: '# USE_OPENCV := 0',
-        replace: ' USE_OPENCV := 1',
-        isCpu: true
-    },
     // USE_CUDNN
     {
         original: '# USE_CUDNN := 1',
@@ -176,13 +171,6 @@ let caffeMakeFileReplacements = [
         replace: 'BLAS := open',
         isCpu: true
     },
-    // # USE_PKG_CONFIG := 1 
-    // for get opencfv from LIBRARY_DIRS
-    /*{
-        original: '# USE_PKG_CONFIG := 1',
-        replace: ' USE_PKG_CONFIG := 1',
-        isCpu: true
-    },*/
     // # OPENCV_VERSION := 3
     {
         original: '# OPENCV_VERSION := 3',
@@ -210,6 +198,14 @@ if(isOSX()){
         isCpu: true
     })
 }
+else{
+    // USE_OPENCV, issue while linking libs for high sierra
+    caffeMakeFileReplacements.push({
+        original: '# USE_OPENCV := 0',
+        replace: ' USE_OPENCV := 1',
+        isCpu: true
+    })
+}
 
 const caffeModules = [
     'caffe'
@@ -226,19 +222,10 @@ const ncclBinDir = path.join(ncclBuild, 'bin');
 const ncclRepo = 'https://github.com/NVIDIA/nccl.git';
 const ncclModules = ['nccl'];
 
-//////////////////// PROTOBUF ///////////////////////
-const protobufRoot = path.join(rootDir, 'protobuf');
-const protobufSrc = path.join(protobufRoot, 'protobuf');
-const protobufBuild = path.join(protobufSrc, 'src');
-const protobufInclude = path.join(protobufBuild, 'google/protobuf/');
-const protobufLibDir = path.join(protobufBuild, '.libs');
-const protobufBinDir = path.join(protobufBuild, '.deps');
-const protobufTarPath = 'https://github.com/google/protobuf/releases/download/v2.5.0/protobuf-2.5.0.tar.gz';
-const protobufTarName = protobufTarPath.split('/').pop();
-const protobufModules = ['protobuf', 'protobuf-lite'];
 
 module.exports = {
     rootDir,
+    commonModules,
     /**
      * OPENCV CONFIG
      */
@@ -257,6 +244,7 @@ module.exports = {
     opencvInclude,
     opencvLibDir,
     opencvBinDir,
+    opencvSrcInclude,
     /**
      * OPENCV REPO
      */
@@ -286,15 +274,6 @@ module.exports = {
     /**
      * PROTOBUF CONFIG
      */
-    protobufRoot,
-    protobufSrc,
-    protobufBuild,
-    protobufInclude,
-    protobufLibDir,
-    protobufBinDir,
-    protobufTarPath,
-    protobufTarName,
-    protobufModules,
     caffeProtoDir,
     /**
      * CAFFE CONFIG
